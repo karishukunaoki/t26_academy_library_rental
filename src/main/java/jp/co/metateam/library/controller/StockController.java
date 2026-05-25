@@ -41,7 +41,7 @@ public class StockController {
 
     @GetMapping("/stock/index")
     public String index(Model model) {
-        List <Stock> stockList = this.stockService.findAll();
+        List<Stock> stockList = this.stockService.findAll();
 
         model.addAttribute("stockList", stockList);
 
@@ -113,7 +113,8 @@ public class StockController {
     }
 
     @PostMapping("/stock/{id}/edit")
-    public String update(@PathVariable("id") String id, @Valid @ModelAttribute StockDto stockDto, BindingResult result, RedirectAttributes ra) {
+    public String update(@PathVariable("id") String id, @Valid @ModelAttribute StockDto stockDto, BindingResult result,
+            RedirectAttributes ra) {
         try {
             if (result.hasErrors()) {
                 throw new Exception("Validation error.");
