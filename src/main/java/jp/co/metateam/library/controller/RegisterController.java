@@ -42,6 +42,8 @@ public class RegisterController {
     }
 
     @PostMapping("/register")
+    //@Valid：バリデーションを実行するためのアノテーション
+    //@ModelAttribute：リクエストパラメータをオブジェクトにバインドするためのアノテーション
     public String register(@Valid @ModelAttribute AccountDto accountDto, BindingResult result, RedirectAttributes ra) {
         try {
             Account emailExist = this.accountService.findByEmail(accountDto.getEmail());

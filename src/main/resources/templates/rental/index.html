@@ -12,6 +12,7 @@
             <div class="inner_contens">
                 <div class="page_title">貸出一覧</div>
                 <table id="manage_table">
+                    <form th:object="${RentalManageDto}">
                     <tbody>
                         <tr th:each="rentalManage : ${rentalManageList}" th:object="${rentalManage}">
                             <td>
