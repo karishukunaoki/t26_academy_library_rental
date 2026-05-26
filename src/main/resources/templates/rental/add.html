@@ -27,7 +27,7 @@
 
                             社員番号<span class="text-red asterisk">＊</span>
                         </label>
-                        <select id="employeeId" class="form_input" name="employeeId">
+                        <select id="employeeId" class="form_input" th:field="*{employeeId}">
                             <option value="">社員番号を選択</option>
                             <option th:each="account : ${accounts}" th:value="${account.value}"
                                 th:text="${account.text}">
@@ -72,7 +72,7 @@
 
                             在庫管理番号<span class="text-red asterisk">＊</span>
                         </label>
-                        <select id="stockMngNumber" class="form_input" name="stockId">
+                        <select id="stockMngNumber" class="form_input" th:field="*{stockId}">
                             <option value="">在庫管理番号を選択</option>
                             <option th:each="stock : ${stockList}" th:value="${stock.value}" th:text="${stock.text}">
                             </option>
@@ -97,6 +97,17 @@
                         <div class="error_msg" th:if="${statusError}">
 
                             貸出ステータスは必須です。
+                        </div>
+                        <div class="error_msg" th:if="${statusCheckError}">
+                            貸出ステータスは「貸出待ち」「貸出中」のどちらかに設定してください。
+                        </div>
+
+                        <div class="error_msg" th:if="${futureStatusError}">
+                            未来日付では「貸出待ち」を選択してください
+                        </div>
+
+                        <div class="error_msg" th:if="${pastStatusError}">
+                            過去日付では「貸出中」を選択してください
                         </div>
                     </div>
                     <div class="btn_block">

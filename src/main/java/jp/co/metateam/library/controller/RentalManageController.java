@@ -71,6 +71,15 @@ public class RentalManageController {
             model.addAttribute("expectedReturnOnError", errors.contains("返却予定日は必須です。"));
             model.addAttribute("stockIdError", errors.contains("在庫管理番号は必須です。"));
             model.addAttribute("statusError", errors.contains("貸出ステータスは必須です。"));
+            model.addAttribute("statusCheckError",
+                    errors.contains("貸出ステータスは「貸出待ち」「貸出中」のどちらかに設定してください。"));
+
+            model.addAttribute("futureStatusError",
+                    errors.contains("未来日付では「貸出待ち」を選択してください"));
+
+            model.addAttribute("pastStatusError",
+                    errors.contains("過去日付では「貸出中」を選択してください"));
+
             model.addAttribute("dateRelationError", errors.contains("返却予定日は貸出予定日以降を入力してください。"));
             model.addAttribute("rentalManageDto", rentalManageDto);
 
