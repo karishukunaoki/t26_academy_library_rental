@@ -1,9 +1,30 @@
 package jp.co.metateam.library.controller;
 
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.validation.Valid;
+import jp.co.metateam.library.model.Account;
+import jp.co.metateam.library.model.BookMst;
+import jp.co.metateam.library.model.RentalManage;
+import jp.co.metateam.library.model.Stock;
+import jp.co.metateam.library.model.StockDto;
+import jp.co.metateam.library.model.RentalManageDto;
+import jp.co.metateam.library.service.AccountService;
+import jp.co.metateam.library.service.BookMstService;
+import jp.co.metateam.library.service.RentalManageService;
+import jp.co.metateam.library.service.StockService;
+import jp.co.metateam.library.values.RentalStatus;
 import lombok.extern.log4j.Log4j2;
 
 /**
@@ -13,6 +34,20 @@ import lombok.extern.log4j.Log4j2;
 @Controller
 public class RentalManageController {
 
+    private final AccountService accountService;
+    private final RentalManageService rentalManageService;
+    private final StockService stockService;
+
+     @Autowired
+    public RentalManageController(
+        AccountService accountService, 
+        RentalManageService rentalManageService, 
+        StockService stockService
+    ) {
+        this.accountService = accountService;
+        this.rentalManageService = rentalManageService;
+        this.stockService = stockService;
+    }
     /**
      * 貸出一覧画面初期表示
      * @param model
@@ -28,4 +63,86 @@ public class RentalManageController {
         return "/rental/index";
     }
 
+    @GetMapping("/rental/add")
+    public String add(Model model) {
+        List<Account> accountList = this.accountService.findAll();
+        List<Stock> stocks = this.stockService.findAll();
+        
+        model.addAttribute("rentalStatus", RentalStatus.values());
+        model.addAttribute("accounts", accountList);
+        model.addAttribute("stockList", stocks);
+
+        if (!model.containsAttribute("rentalManageDto")) {
+            model.addAttribute("rentalManageDto", new RentalManageDto());
+        }
+
+        return "rental/add";
+    }
+
+    @PostMapping("/rental/add")
+    public String save(@Valid @ModelAttribute RentalManageDto rentalManageDto, BindingResult result, RedirectAttributes ra) {
+        // try {
+        //     if (result.hasErrors()) {
+        //         throw new Exception("Validation error.");
+        //     }
+
+        //     // 登録処理
+        //     this.rentalManageService.save(rentalManageDto);
+
+        //     return "redirect:/rental/index";
+
+        // } catch (Exception e) {
+        //     log.error(e.getMessage());
+
+        //     ra.addFlashAttribute("rentalManageDto", rentalManageDto);
+        //     ra.addFlashAttribute("org.springframework.validation.BindingResult.rentalManageDto", result);
+
+        //     return "redirect:/rental/add";
+        // }
+
+        try {
+
+            // 入力チェック
+            if (result.hasErrors()) {
+
+                ra.addFlashAttribute("org.springframework.validation.BindingResult.rentalManageDto", result);
+                ra.addFlashAttribute("rentalManageDto", rentalManageDto);
+
+                return "redirect:/rental/add";
+            }
+            
+            // 業務チェック
+            Map<String, String> errors = rentalManageService.check(rentalManageDto);
+        
+            if (!errors.isEmpty()) {
+
+                for (Map.Entry<String, String> error : errors.entrySet()) {
+
+                    result.rejectValue(
+                        error.getKey(),
+                        "",
+                        error.getValue()
+                    );
+                }
+
+                ra.addFlashAttribute("rentalManageDto", rentalManageDto);
+                ra.addFlashAttribute("org.springframework.validation.BindingResult.rentalManageDto",result);
+
+                return "redirect:/rental/add";
+        }
+            // 登録
+            rentalManageService.save(rentalManageDto);
+
+            return "redirect:/rental/add";
+
+        } catch (Exception e) {
+
+            log.error("unexpected error", e);
+
+            ra.addFlashAttribute("rentalManageDto", rentalManageDto);
+            ra.addFlashAttribute("errorMessage", "システムエラーが発生しました。");
+
+            return "redirect:/rental/add";
+        }
+    }
 }
